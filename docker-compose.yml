@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  line-provider:
+    build: ./bsw-test-line-provider
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_PORT=8000
+
+  bet-maker:
+    build: ./bsw-test-bet-maker
+    ports:
+      - "8001:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - LINE_PROVIDER_URL=http://line-provider:8000
+    depends_on:
+      - redis
+      - line-provider
+
+volumes:
+  redis_data:
